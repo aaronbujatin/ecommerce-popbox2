@@ -21,15 +21,12 @@ public class LoggingInterceptor  implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest request, byte[] body,
                                         ClientHttpRequestExecution execution
     ) throws IOException {
-        log.info("Sending API: [{} {}] [Headers: {}]",
+        log.info("Sending API: [{} {}] [Headers: {}] bdoy: {}",
                 request.getMethod(),
                 request.getURI(),
-                request.getHeaders()
-        );
+                request.getHeaders(),
+                new String(body, StandardCharsets.UTF_8));
 
-        if (body.length > 0) {
-            log.info("--> Body: {}", new String(body, StandardCharsets.UTF_8));
-        }
 
         long start = System.currentTimeMillis();
         ClientHttpResponse response = execution.execute(request, body);
@@ -51,39 +48,31 @@ public class LoggingInterceptor  implements ClientHttpRequestInterceptor {
         return s.length() > MAX_LOG_CHARS ? s.substring(0, MAX_LOG_CHARS) + "...[truncated]" : s;
     }
 
-    private static class BufferedResponse implements ClientHttpResponse {
-
-        private final ClientHttpResponse delegate;
-        private final byte[] body;
-
-        BufferedResponse(ClientHttpResponse delegate, byte[] body) {
-            this.delegate = delegate;
-            this.body = body;
-        }
+    private record BufferedResponse(ClientHttpResponse delegate, byte[] body) implements ClientHttpResponse {
 
         @Override
-        public HttpStatusCode getStatusCode() throws IOException {
-            return delegate.getStatusCode();
-        }
+            public HttpStatusCode getStatusCode() throws IOException {
+                return delegate.getStatusCode();
+            }
 
-        @Override
-        public String getStatusText() throws IOException {
-            return delegate.getStatusText();
-        }
+            @Override
+            public String getStatusText() throws IOException {
+                return delegate.getStatusText();
+            }
 
-        @Override
-        public HttpHeaders getHeaders() {
-            return delegate.getHeaders();
-        }
+            @Override
+            public HttpHeaders getHeaders() {
+                return delegate.getHeaders();
+            }
 
-        @Override
-        public InputStream getBody() {
-            return new ByteArrayInputStream(body);
-        }
+            @Override
+            public InputStream getBody() {
+                return new ByteArrayInputStream(body);
+            }
 
-        @Override
-        public void close() {
-            delegate.close();
+            @Override
+            public void close() {
+                delegate.close();
+            }
         }
-    }
 }
