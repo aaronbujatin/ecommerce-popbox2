@@ -1,0 +1,15 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: chat-svc
+  #http client
+  http:
+    serviceclient:
+      user:
+        base-url: http://localhost:8090
+      payment:
+        base-url: https://payment.example.com/v1
+      inventory:
+        base-url: http://inventory-service:9090

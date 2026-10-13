@@ -19,9 +19,9 @@ public class ProductUnit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
-    private ProductUnitType productUnitType;
+    private ProductUnitType type;
     private BigDecimal price;
-    private int stock;
+    private int stockQty;
     private String imageUrl;
     @ManyToOne
     @JoinColumn(name = "product_id")

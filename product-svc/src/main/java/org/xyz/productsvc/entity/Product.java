@@ -24,6 +24,8 @@ public class Product {
     private String name;
     private String description;
     private List<String> images;
+    private List<String> imageContents;
+    private boolean isSeries;
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;

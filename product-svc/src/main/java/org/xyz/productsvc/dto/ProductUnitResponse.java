@@ -8,9 +8,8 @@ import java.math.BigDecimal;
 @Builder
 public record ProductUnitResponse(
         Long id,
-        ProductUnitType unitType,
+        ProductUnitType type,
         BigDecimal price,
-        int stock,
-        String imageUrl
+        int stockQty
 ) {
 }

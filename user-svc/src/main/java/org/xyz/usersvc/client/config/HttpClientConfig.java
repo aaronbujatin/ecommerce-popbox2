@@ -23,4 +23,6 @@ public class HttpClientConfig {
                     builder.requestInterceptor(new LoggingInterceptor()));
         };
     }
+
+
 }

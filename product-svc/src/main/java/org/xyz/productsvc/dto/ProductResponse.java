@@ -6,8 +6,10 @@ public record ProductResponse(
         Long id,
         String name,
         String description,
+        boolean isSeries,
         List<String> images,
-        String categoryName,
+        List<String> imageContents,
+        Long categoryId,
         List<ProductUnitResponse> productUnits
 ) {
 }

@@ -35,9 +35,9 @@ public class ProductMapper {
                 .productUnits(productRequest.productUnitRequests()
                         .stream()
                         .map(unit -> ProductUnit.builder()
-                                .productUnitType(unit.productUnitType())
+                                .type(unit.productUnitType())
                                 .price(unit.price())
-                                .stock(unit.stock())
+                                .stockQty(unit.stock())
                                 .build()
                         ).toList()
                 )
@@ -45,26 +45,26 @@ public class ProductMapper {
                 .build();
     }
 
-    public ProductResponse mapToProductResponse(Product product){
-
-        return new ProductResponse(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getImages(),
-                product.getCategory().getName(),
-                product.getProductUnits()
-                        .stream()
-                        .map(unit -> new ProductUnitResponse(
-                                unit.getId(),
-                                unit.getProductUnitType(),
-                                unit.getPrice(),
-                                unit.getStock(),
-                                unit.getImageUrl()
-                            )
-                        )
-                        .toList()
-        );
-    }
+//    public ProductResponse mapToProductResponse(Product product){
+//
+//        return new ProductResponse(
+//                product.getId(),
+//                product.getName(),
+//                product.getDescription(),
+//                product.getImages(),
+//                product.getCategory().getName(),
+//                product.getProductUnits()
+//                        .stream()
+//                        .map(unit -> new ProductUnitResponse(
+//                                unit.getId(),
+//                                unit.getType(),
+//                                unit.getPrice(),
+//                                unit.getStockQty(),
+//                                unit.getImageUrl()
+//                            )
+//                        )
+//                        .toList()
+//        );
+//    }
 
 }

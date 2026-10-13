@@ -1,0 +1,36 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: chat-svc
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dbproduct
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: never
+  ai:
+  #  api-key: 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
+  #  base-url: https://api.groq.com/openai/v1
+  #  chat:
+  #    model: llama-3.3-70b-versatile
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: qwen3:1.7b
+  http:
+    serviceclient:
+      fastek:
+        base-url: https://api.jyska-cde.onepay.ph
+      payment:
+        base-url: https://payment.example.com/v1
+      inventory:
+        base-url: http://inventory-service:9090

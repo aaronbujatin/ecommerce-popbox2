@@ -1,7 +1,12 @@
 package org.xyz.productsvc.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.xyz.productsvc.dto.*;
 import org.xyz.productsvc.entity.Product;
@@ -11,6 +16,7 @@ import org.xyz.productsvc.mapper.ProductMapper;
 import org.xyz.productsvc.repository.dto.ProductCartRespRecord;
 import org.xyz.productsvc.repository.ProductRepository;
 import org.xyz.productsvc.repository.projections.ProductCartRespProjection;
+import org.xyz.productsvc.repository.specs.ProductSpecs;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +28,7 @@ public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ObjectMapper objectMapper;
 
     @Override
     public String createProduct(ProductRequest productRequest) {
@@ -47,60 +54,13 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public List<ProductResponse> getAllProducts() {
-//        log.info("Getting the list of product");
-//
-//        List<Product> products = productRepository.findAll();
-//
-//        List<ProductResponse> productResponses = products
-//                .stream()
-//                .map(productMapper::mapToProductResponse)
-//                .toList();
-//
-//        log.info("Returning list of products {}", productResponses);
-//        return productResponses;
-
         return null;
     }
 
     @Override
     public List<ProductResponse> getAllProductsByFilter(List<ProductBatchReq> productBatchReqs) {
-
-//        var productIds = productBatchReqs.stream().map(ProductBatchReq::id).toList();
-
-//        var product = productRepository.findAllById(productIds)
-//                .stream()
-//                .map(p -> new ProductResponse(
-//                            p.getId(),
-//                            p.getName(),
-//                            p.getDescription(),
-//                            p.getImages(),
-//                            p.getCategory(),
-//                            p.getProductUnits()
-//                                    .stream()
-//                                    .filter()
-//                        )
-//                );
-
-
         return List.of();
     }
-
-//    @Override
-//    public List<ProductCartResp> getAllProductUnitById(List<Long> ids) {
-//        return productRepository.findAllProductUnitById(ids)
-//                .stream()
-//                .map(product -> new ProductCartResp(
-//                        product.productId(),
-//                        product.productUnitId(),
-//                        product.name(),
-//                        product.price(),
-//                        product.unitType(),
-//                        product.stock(),
-//                        product.description(),
-//                        convertImages(product.images()).toString()
-//                ))
-//                .toList();
-//    }
 
     @Override
     public List<ProductCartResp> getAllProductUnitById(List<Long> productUnitIds) {
@@ -126,22 +86,65 @@ public class ProductServiceImpl implements ProductService{
         return mapToProductCartResp(productCartRespProjection);
     }
 
+    @Override
+    public List<ProductResponse> getAllProductByFilter(ProductFilterParam filterParam) {
+        var products = productRepository.findProductByFilter(
+                filterParam.categoryId(),
+                filterParam.productId()
+        );
+
+        return products.stream()
+                .map(p -> {
+                            try {
+                                return new ProductResponse(
+                                        p.getId(),
+                                        p.getName(),
+                                        p.getDescription(),
+                                        p.getIsSeries(),
+                                        p.getImages(),
+                                        p.getImageContents(),
+                                        p.getCategoryId(),
+                                        objectMapper.readValue(
+                                                p.getProductUnits(),
+                                                new TypeReference<List<ProductUnitResponse>>() {
+                                            })
+                                            .stream()
+                                            .map(pu -> new ProductUnitResponse(
+                                                    pu.id(),
+                                                    pu.type(),
+                                                    pu.price(),
+                                                    pu.stockQty()
+                                                )
+                                            )
+                                            .toList()
+                                    );
+                            } catch (JsonProcessingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                )
+                .toList();
+    }
+
+
     private ProductResponse mapToProductResponse(Product product){
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
                 product.getDescription(),
+                product.isSeries(),
                 product.getImages(),
-                product.getCategory().getName(),
+                product.getImageContents(),
+                product.getCategory().getId(),
                 product.getProductUnits()
                         .stream()
-                        .map(unit -> new ProductUnitResponse(
-                                        unit.getId(),
-                                        unit.getProductUnitType(),
-                                        unit.getPrice(),
-                                        unit.getStock(),
-                                        unit.getImageUrl()
-                                )
+                        .map(unit ->
+                            new ProductUnitResponse(
+                                unit.getId(),
+                                unit.getType(),
+                                unit.getPrice(),
+                                unit.getStockQty()
+                            )
                         )
                         .toList()
         );
@@ -176,7 +179,6 @@ public class ProductServiceImpl implements ProductService{
     private List<String> convertImages(String dbValue) {
         if (dbValue == null) return List.of();
 
-        // If stored like: ["img1.jpg","img2.jpg"]
         return Arrays.stream(
                         dbValue.replace("[", "")
                                 .replace("]", "")
@@ -189,9 +191,8 @@ public class ProductServiceImpl implements ProductService{
 
     private List<String> parseImages(String images) {
         if (images == null) return List.of();
-        // if stored as Postgres array e.g. {"img1.png","img2.png"}
+
         return Arrays.asList(images.replaceAll("[{}\"']", "").split(","));
-        // if stored as JSON array e.g. ["img1.png","img2.png"], use ObjectMapper instead
     }
 
 
