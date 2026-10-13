@@ -18,7 +18,7 @@ spring:
     init:
       mode: never
   ai:
-  #  api-key: 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
+  #  api-key: {API_KEY}
   #  base-url: https://api.groq.com/openai/v1
   #  chat:
   #    model: llama-3.3-70b-versatile
