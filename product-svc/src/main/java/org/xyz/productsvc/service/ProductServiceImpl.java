@@ -5,9 +5,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.xyz.productsvc.client.config.RestClientConfig;
 import org.xyz.productsvc.dto.*;
 import org.xyz.productsvc.entity.Product;
 import org.xyz.productsvc.enums.ProductErrorInfo;
@@ -16,8 +15,7 @@ import org.xyz.productsvc.mapper.ProductMapper;
 import org.xyz.productsvc.repository.dto.ProductCartRespRecord;
 import org.xyz.productsvc.repository.ProductRepository;
 import org.xyz.productsvc.repository.projections.ProductCartRespProjection;
-import org.xyz.productsvc.repository.specs.ProductSpecs;
-
+import org.springframework.web.client.RestClient;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +27,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ObjectMapper objectMapper;
+    private final RestClient userRestClient;
 
     @Override
     public String createProduct(ProductRequest productRequest) {
@@ -124,6 +123,14 @@ public class ProductServiceImpl implements ProductService{
                         }
                 )
                 .toList();
+    }
+
+
+    public UserResponse getUser(String orderId) {
+        return userRestClient.get()
+                .uri("/orders/{id}", orderId)
+                .retrieve()
+                .body(UserResponse.class);
     }
 
 

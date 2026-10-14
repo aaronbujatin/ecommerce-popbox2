@@ -1,3 +1,4 @@
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.5.7"
@@ -20,25 +21,20 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+
+	// Spring Cloud OpenFeign
+	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.3.0")
+
 	compileOnly("org.projectlombok:lombok")
-	runtimeOnly("org.postgresql:postgresql")
 	annotationProcessor("org.projectlombok:lombok")
+
+	runtimeOnly("org.postgresql:postgresql")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation(kotlin("stdlib-jdk8"))
 }
-
-extra["springCloudVersion"] = "2025.0.0"
-
-dependencyManagement {
-	imports {
-		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-	}
-}
-
 
 tasks.withType<Test> {
 	useJUnitPlatform()
