@@ -2,7 +2,6 @@ package org.xyz.cartsvc.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.xyz.cartsvc.client.ProductClient;
 import org.xyz.cartsvc.client.UserClient;
@@ -36,19 +35,21 @@ public class CartServiceImpl implements CartService{
     private final CartItemRepository cartItemRepository;
 
     public CartResponse addCartItem(CartItemRequest cartItemRequest) {
-        var userResp = this.userClient.getUserById(cartItemRequest.userId())
-                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+//        var userResp = this.userClient.getUserById(cartItemRequest.userId())
+//                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+
+        var userResp = new UserResponse(1L);
 
         var productUnitResp = productClient.getProductUnitById(cartItemRequest.productUnitId())
                 .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.PRODUCT_UNIT_NOT_FOUND));
 
-        if (cartItemRequest.quantity() >= productUnitResp.stock()) {
+        if (cartItemRequest.quantity() >= productUnitResp.stockQty()) {
             throw new InvalidCartRequestException(CartErrorInfo.PRODUCT_OUT_OF_STOCK);
         }
 
-        Cart cart = cartRepository.findByUserId(userResp.id())
+        Cart cart = cartRepository.findByUserId(1L)
                 .orElseGet(() -> {
-                    log.info("🛒No cart for user productUnitId [{}]. ✅Creating new cart", userResp.id());
+                    log.info("🛒No cart for user id [{}]. ✅Creating new cart", userResp.id());
                     var newCart = Cart
                             .builder()
                             .userId(userResp.id())
@@ -62,16 +63,16 @@ public class CartServiceImpl implements CartService{
 
         var cartItem = cart.getCartItems()
                 .stream()
-                .filter(item -> item.getProductUnitId().equals(productUnitResp.productUnitId())
+                .filter(item -> item.getProductUnitId().equals(productUnitResp.id())
                         && item.getStatus().equals(CartItemStatus.ACTIVE)
                 )
                 .findFirst()
                 .map(item -> {
-                    log.info("🔁Updating item with product productUnitId [{}].", productUnitResp.productUnitId());
+                    log.info("🔁Updating item with product id [{}].", productUnitResp.id());
                     var quantity = item.getQuantity() + cartItemRequest.quantity();
                     var cartItemTotalPrice = item.getUnitPrice().multiply(BigDecimal.valueOf(quantity));
 
-                    if (quantity >= productUnitResp.stock()) {
+                    if (quantity >= productUnitResp.stockQty()) {
                         throw new InvalidCartRequestException(CartErrorInfo.PRODUCT_OUT_OF_STOCK);
                     }
 
@@ -81,14 +82,14 @@ public class CartServiceImpl implements CartService{
                     return item;
                 })
                 .orElseGet(() -> {
-                    log.info("🙅No existing cart item for product productUnitId {}. ✅Creating new cart item", productUnitResp.productId());
+                    log.info("🙅No existing cart item for product id {}. ✅Creating new cart item", productUnitResp.productId());
                     return CartItem
                             .builder()
                             .cart(cart)
                             .status(CartItemStatus.ACTIVE)
                             .productId(productUnitResp.productId())
                             .unitPrice(productUnitResp.price())
-                            .productUnitId(productUnitResp.productUnitId())
+                            .productUnitId(productUnitResp.id())
                             .quantity(cartItemRequest.quantity())
                             .totalPrice(calculateTotalPrice(cartItemRequest.quantity(), productUnitResp.price()))
                             .build();
@@ -124,13 +125,15 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public CartResponse removeCartItem(CartItemRequest cartItemRequest) {
-        var userResp = this.userClient.getUserById(cartItemRequest.userId())
-                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+//        var userResp = this.userClient.getUserById(cartItemRequest.userId())
+//                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+
+        var userResp = new UserResponse(1L);
 
         var extProductUnitResp = productClient.getProductUnitById(cartItemRequest.productUnitId())
                 .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.PRODUCT_UNIT_NOT_FOUND));
 
-        if (cartItemRequest.quantity() >= extProductUnitResp.stock()) {
+        if (cartItemRequest.quantity() >= extProductUnitResp.stockQty()) {
             throw new InvalidCartRequestException(CartErrorInfo.PRODUCT_UNIT_OUT_OF_STOCK);
         }
 
@@ -139,20 +142,20 @@ public class CartServiceImpl implements CartService{
 
         cart.getCartItems()
                 .stream()
-                .filter(item -> item.getProductUnitId().equals(extProductUnitResp.productUnitId())
+                .filter(item -> item.getProductUnitId().equals(extProductUnitResp.id())
                         && item.getStatus().equals(CartItemStatus.ACTIVE)
                 )
                 .findFirst()
                 .map(item -> {
                     if (item.getQuantity() != 1) {
-                        log.info("🔁Updating cart item quantity with product productUnitId [{}].", extProductUnitResp.productUnitId());
+                        log.info("🔁Updating cart item quantity with product id [{}].", extProductUnitResp.id());
                         var quantity = item.getQuantity() - cartItemRequest.quantity();
                         var cartItemTotalPrice = item.getUnitPrice().multiply(BigDecimal.valueOf(quantity));
                         item.setQuantity(quantity);
                         item.setTotalPrice(cartItemTotalPrice);
                         item.setUpdatedAt(LocalDateTime.now());
                     } else {
-                        log.info("✖️Removing to cart item with product productUnitId [{}].", extProductUnitResp.productUnitId());
+                        log.info("✖️Removing to cart item with product id [{}].", extProductUnitResp.id());
                         cart.removeToCart(item);
                     }
 
@@ -185,10 +188,12 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public CartResponse getCartByUserId(Long id) {
-        log.info("👤Getting the cart by user productUnitId {}", id);
+        log.info("👤Getting the cart by user id {}", id);
 
-        var userResp = userClient.getUserById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+//        var userResp = userClient.getUserById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+
+        var userResp = new UserResponse(1L);
 
         var cart = cartRepository.findByUserId(userResp.id())
                 .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.CART_NOT_FOUND));
@@ -198,8 +203,14 @@ public class CartServiceImpl implements CartService{
                 .filter(ci -> ci.getStatus() == CartItemStatus.ACTIVE)
                 .sorted(Comparator.comparing(CartItem::getId))
                 .toList();
-        var productUnitIds = cart.getCartItems().stream().map(CartItem::getProductUnitId).toList();
-        var productUnitBatch = productClient.getBatchProductUnitByIds(productUnitIds).orElseThrow();
+
+        var productUnitIds = cart.getCartItems()
+                .stream()
+                .map(CartItem::getProductUnitId)
+                .toList();
+
+        var productUnitBatch = productClient.getBatchProductUnitByIds(productUnitIds)
+                .orElseThrow();
 
         return new CartResponse(
                 cart.getId(),
@@ -216,7 +227,10 @@ public class CartServiceImpl implements CartService{
         var cart = cartRepository.findByUserId(request.userId())
                 .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
 
-        var cartItems = cartItemRepository.findByIdInAndStatus(request.cartItemIds(), CartItemStatus.ACTIVE);
+        var cartItems = cartItemRepository.findByIdInAndStatus(
+                request.cartItemIds(),
+                CartItemStatus.ACTIVE
+        );
 
         if (cartItems.isEmpty()) {
             throw new InvalidCartRequestException(CartErrorInfo.CART_ITEM_NOT_ACTIVE);
@@ -241,7 +255,7 @@ public class CartServiceImpl implements CartService{
         );
 
         cartRepository.save(cart);
-        log.info("🔁Cart item with product productUnitId of [{}] successfully converted. Message: ",
+        log.info("🔁Cart item with product id of [{}] successfully converted. Message: ",
                 CartItemStatus.BEGIN_CHECKOUT.getDescription());
         return cartResponse;
     }
@@ -257,7 +271,7 @@ public class CartServiceImpl implements CartService{
                     var productBatchResp = productBatchResponses
                             .stream()
                             .filter(item ->
-                                    item.productUnitId().equals(cartItem.getProductUnitId())
+                                    item.id().equals(cartItem.getProductUnitId())
                             )
                             .findFirst()
                             .orElseThrow();
@@ -269,7 +283,7 @@ public class CartServiceImpl implements CartService{
                             productBatchResp.name(),
                             cartItem.getUnitPrice(),
                             productBatchResp.images().get(0),
-                            productBatchResp.unitType(),
+                            productBatchResp.type(),
                             cartItem.getQuantity(),
                             cartItem.getTotalPrice(),
                             cartItem.getStatus()

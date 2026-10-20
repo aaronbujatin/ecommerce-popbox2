@@ -14,6 +14,7 @@ import org.xyz.productsvc.exception.ResourceNotFoundException;
 import org.xyz.productsvc.mapper.ProductMapper;
 import org.xyz.productsvc.repository.dto.ProductCartRespRecord;
 import org.xyz.productsvc.repository.ProductRepository;
+import org.xyz.productsvc.repository.dto.ProductUnitDto;
 import org.xyz.productsvc.repository.projections.ProductCartRespProjection;
 import org.springframework.web.client.RestClient;
 import java.util.Arrays;
@@ -62,24 +63,23 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<ProductCartResp> getAllProductUnitById(List<Long> productUnitIds) {
+    public List<ProductUnitDto> getAllProductUnitById(List<Long> productUnitIds) {
         return productRepository.findAllProductUnitById(productUnitIds)
                 .stream()
-                .map(product -> new ProductCartResp(
-                        product.getProductId(),
-                        product.getId(),
-                        product.getName(),
-                        product.getPrice(),
-                        product.getProductUnitType(),
-                        product.getStock(),
-                        product.getDescription(),
-                        product.getImages()
+                .map(item -> new ProductUnitDto(
+                        item.id(),
+                        item.productId(),
+                        item.name(),
+                        item.price(),
+                        item.stockQty(),
+                        item.type(),
+                        item.images()
                 ))
                 .toList();
     }
 
     @Override
-    public ProductCartResp getProductUnitById(Long productUnitId) {
+    public ProductCartResp getProductUnitCartById(Long productUnitId) {
         var productCartRespProjection = productRepository.findProductUnitById(productUnitId)
                 .orElseThrow(() -> new ResourceNotFoundException(ProductErrorInfo.PRODUCT_UNIT_NOT_FOUND));
         return mapToProductCartResp(productCartRespProjection);
@@ -123,6 +123,21 @@ public class ProductServiceImpl implements ProductService{
                         }
                 )
                 .toList();
+    }
+
+    @Override
+    public ProductUnitDto getProductUnitById(Long productUnitId) {
+        var productUnitDto = productRepository.getProductUnitById(productUnitId)
+                .orElseThrow(() -> new ResourceNotFoundException(ProductErrorInfo.PRODUCT_UNIT_NOT_FOUND));
+        return new ProductUnitDto(
+                productUnitDto.id(),
+                productUnitDto.productId(),
+                productUnitDto.name(),
+                productUnitDto.price(),
+                productUnitDto.stockQty(),
+                productUnitDto.type(),
+                productUnitDto.images()
+        );
     }
 
 

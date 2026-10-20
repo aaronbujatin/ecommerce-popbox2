@@ -36,13 +36,14 @@ public class CartController {
         return ResponseEntity.ok("Successfully removed from cart");
     }
 
-    @GetMapping("/items/user/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<CartResponse> getCartByUserId(@PathVariable("userId") Long id) {
         return ResponseEntity.ok(cartService.getCartByUserId(id));
     }
 
-    @PostMapping("/items/user/convert")
-    public ResponseEntity<CartResponse> convertCart(@RequestBody CartConvertRequest cartConvertRequest) {
+    @PostMapping("/user/{userId}/convert")
+    public ResponseEntity<CartResponse> convertCart(@PathVariable("userId") Long userId, @RequestBody CartConvertRequest cartConvertRequest) {
+        cartConvertRequest = new CartConvertRequest(userId, cartConvertRequest.cartItemIds());
         return ResponseEntity.ok(cartService.convertCart(cartConvertRequest));
     }
 

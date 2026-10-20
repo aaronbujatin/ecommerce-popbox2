@@ -93,7 +93,7 @@ class ProductServiceImplTest {
                 List.of("img1", "img2")
         );
         when(productRepository.findProductUnitByIdRecord(any(Long.class))).thenReturn(Optional.of(productUnitRecord));
-        productService.getProductUnitById(productUnitId);
+        productService.getProductUnitCartById(productUnitId);
         //Act
         var result = productRepository.findProductUnitByIdRecord(productUnitId);
 

@@ -5,10 +5,10 @@ import java.util.List;
 
 public record ProductBatchResp(
         Long productId,
-        Long productUnitId,
+        Long id,
         String name,
         BigDecimal price,
-        String unitType,
+        String type,
         int stock,
         String description,
         List<String> images

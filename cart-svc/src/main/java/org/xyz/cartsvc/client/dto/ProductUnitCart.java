@@ -5,10 +5,10 @@ import java.util.List;
 
 public record ProductUnitCart(
         Long productId,
-        Long productUnitId,
+        Long id,
         String name,
         String unitType,
-        int stock,
+        int stockQty,
         BigDecimal price,
         List<String> images
 ) {

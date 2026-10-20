@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.xyz.productsvc.dto.*;
 import org.xyz.productsvc.repository.ProductRepository;
+import org.xyz.productsvc.repository.dto.ProductUnitDto;
 import org.xyz.productsvc.service.ProductService;
 
 import java.util.List;
@@ -43,5 +44,22 @@ public class ProductController {
         var body = productService.getAllProductByFilter(params);
         return ResponseEntity.ok(body);
     }
+
+    @GetMapping("/unit/{productUnitId}")
+    public ResponseEntity<ProductUnitDto> getProductUnitById(
+            @PathVariable("productUnitId") Long productUnitId
+    ) {
+        ProductUnitDto productUnitDto = productService.getProductUnitById(productUnitId);
+        return ResponseEntity.ok(productUnitDto);
+    }
+
+    @GetMapping("/unit/batch")
+    public ResponseEntity<List<ProductUnitDto>> getProductUnitBatchById(
+            @RequestParam("productUnitIds") List<Long> productUnitIds
+    ) {
+        var productUnitDtos = productService.getAllProductUnitById(productUnitIds);
+        return ResponseEntity.ok(productUnitDtos);
+    }
+
 
 }

@@ -13,8 +13,8 @@ import java.util.Optional;
 @FeignClient(name = "product-service", url = "http://localhost:8081")
 public interface ProductClient {
 
-//    @GetMapping("/api/v1/products/{productUnitId}")
-//    Optional<ProductResponse> getProductById(@PathVariable("productUnitId") Long productUnitId);
+//    @GetMapping("/api/v1/products/{id}")
+//    Optional<ProductResponse> getProductById(@PathVariable("id") Long id);
 
     @GetMapping("/api/v1/products")
     Optional<List<ProductResponse>> getAllProductById(@RequestParam List<Long> ids);
@@ -28,8 +28,8 @@ public interface ProductClient {
     @GetMapping("/api/v1/products/unit/batch/{productId}")
     List<ProductUnitCart> getAllProductUnitByProductId(@PathVariable Long productId);
 
-    @GetMapping("/api/v1/products/unit/{productUnitId}")
-    Optional<ProductUnitCart> getProductUnitById(@PathVariable Long productUnitId);
+    @GetMapping("/api/v1/products/unit/{id}")
+    Optional<ProductUnitCart> getProductUnitById(@PathVariable("id") Long productUnitId);
 
     @GetMapping("/api/v1/products/unit/batch")
     Optional<List<ProductBatchResp>> getBatchProductUnitByIds(@RequestParam List<Long> productUnitIds);
