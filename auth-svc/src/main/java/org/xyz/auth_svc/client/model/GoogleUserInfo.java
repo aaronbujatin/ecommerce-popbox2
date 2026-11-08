@@ -1,0 +1,14 @@
+package org.xyz.auth_svc.client.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record GoogleUserInfo(
+        @JsonProperty("sub") String sub,
+        @JsonProperty("email") String email,
+        @JsonProperty("email_verified") Boolean emailVerified,
+        @JsonProperty("given_name") String givenName,
+        @JsonProperty("family_name") String familyName,
+        @JsonProperty("name") String fullName,
+        @JsonProperty("picture") String picture
+) {
+}
