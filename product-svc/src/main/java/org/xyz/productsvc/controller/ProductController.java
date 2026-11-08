@@ -5,10 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.xyz.productsvc.dto.*;
-import org.xyz.productsvc.repository.ProductRepository;
 import org.xyz.productsvc.repository.dto.ProductUnitDto;
 import org.xyz.productsvc.service.ProductService;
 
@@ -41,6 +39,13 @@ public class ProductController {
             @RequestParam(required = false) Long productId
     ) {
         var params = new ProductFilterParam(categoryId, productId);
+        var body = productService.getAllProductByFilter(params);
+        return ResponseEntity.ok(body);
+    }
+
+    @GetMapping("/category")
+    public ResponseEntity<List<ProductResponse>> getProductByCategoryId(@RequestParam("categoryId") Long categoryId) {
+        var params = new ProductFilterParam(categoryId, null);
         var body = productService.getAllProductByFilter(params);
         return ResponseEntity.ok(body);
     }

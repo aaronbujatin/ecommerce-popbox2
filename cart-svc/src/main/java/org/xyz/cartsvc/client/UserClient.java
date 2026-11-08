@@ -8,10 +8,10 @@ import org.xyz.cartsvc.client.dto.UserResponse;
 
 import java.util.Optional;
 
-@FeignClient(name = "user-service", url = "http://localhost:8083", configuration = FeignClientConfig.class)
+@FeignClient(name = "user-service", url = "http://localhost:8090", configuration = FeignClientConfig.class)
 public interface UserClient {
 
-    @GetMapping("/api/v1/customers/{id}")
+    @GetMapping("/api/v1/users/{id}")
     Optional<UserResponse> getUserById(@PathVariable("id") Long id);
 
 }

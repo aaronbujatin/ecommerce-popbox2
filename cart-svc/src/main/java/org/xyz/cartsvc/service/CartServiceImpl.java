@@ -35,10 +35,10 @@ public class CartServiceImpl implements CartService{
     private final CartItemRepository cartItemRepository;
 
     public CartResponse addCartItem(CartItemRequest cartItemRequest) {
-//        var userResp = this.userClient.getUserById(cartItemRequest.userId())
-//                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
+        var userResp = this.userClient.getUserById(cartItemRequest.userId())
+                .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.USER_NOT_FOUND));
 
-        var userResp = new UserResponse(1L);
+//        var userResp = new UserResponse(1L);
 
         var productUnitResp = productClient.getProductUnitById(cartItemRequest.productUnitId())
                 .orElseThrow(() -> new ResourceNotFoundException(CartErrorInfo.PRODUCT_UNIT_NOT_FOUND));

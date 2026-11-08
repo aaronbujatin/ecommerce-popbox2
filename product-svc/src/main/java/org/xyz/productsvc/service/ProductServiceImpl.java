@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.xyz.productsvc.client.config.RestClientConfig;
 import org.xyz.productsvc.dto.*;
@@ -29,6 +30,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductMapper productMapper;
     private final ObjectMapper objectMapper;
     private final RestClient userRestClient;
+    private final RestClient paymentRestClient;
 
     @Override
     public String createProduct(ProductRequest productRequest) {
@@ -141,12 +143,23 @@ public class ProductServiceImpl implements ProductService{
     }
 
 
-    public UserResponse getUser(String orderId) {
-        return userRestClient.get()
-                .uri("/orders/{id}", orderId)
-                .retrieve()
-                .body(UserResponse.class);
-    }
+//    public UserResponse getUser(String orderId) {
+//        return userRestClient.get()
+//                .uri("/orders/{id}", orderId)
+//                .retrieve()
+//                .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+//                    log.warn("Payment provider 5xx on GET: status={}", res.getStatusCode());
+//                    throw new PaymentGatewayException(
+//                            "Provider error", res.getStatusCode().value(), null);
+//                })
+//                .onStatus(status -> status.value() == 404, (req, res) -> {
+//                    throw new PaymentNotFoundException(paymentId);
+//                })
+//                .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+//                    throw new IllegalArgumentException("Bad request: " + res.getStatusCode());
+//                })
+//                .body(UserResponse.class);
+//    }
 
 
     private ProductResponse mapToProductResponse(Product product){

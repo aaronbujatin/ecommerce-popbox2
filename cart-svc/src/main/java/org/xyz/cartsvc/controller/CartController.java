@@ -13,7 +13,7 @@ import org.xyz.cartsvc.service.CartService;
 import java.math.BigDecimal;
 import java.util.List;
 
-@CrossOrigin("http://localhost:4200")
+@CrossOrigin("*")
 @Slf4j
 @RestController
 @RequiredArgsConstructor

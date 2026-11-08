@@ -1,12 +1,13 @@
 package org.xyz.usersvc.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.xyz.usersvc.client.UserClient;
-import org.xyz.usersvc.client.model.UserReq;
-import org.xyz.usersvc.client.model.UserResp;
+import org.xyz.usersvc.model.CreateUserRequest;
+import org.xyz.usersvc.model.UpdateUserRequest;
 import org.xyz.usersvc.model.UserInfo;
+import org.xyz.usersvc.model.UserResponse;
 import org.xyz.usersvc.service.UserService;
 
 @RestController
@@ -14,25 +15,28 @@ import org.xyz.usersvc.service.UserService;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserClient userClient;
     private final UserService service;
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserReq userReq) {
-        var resp = userClient.addUser(userReq);
-        return ResponseEntity.ok("User successfully saved " + resp.id());
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest request) {
+        UserResponse saved = service.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResp> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userClient.getUser(id));
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.getUserById(id));
     }
 
-    @GetMapping("/by-email/")
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(service.updateUser(id, request));
+    }
+
+    @GetMapping("/by-email/{email}")
     public ResponseEntity<UserInfo> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.getUserByEmail(email));
     }
-
 
 
 }
